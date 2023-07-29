@@ -1,13 +1,13 @@
 package main
 
 import (
-	"go-screenlist/pkg/list"
-	"go-screenlist/pkg/params"
-	"go-screenlist/pkg/utils"
-	"go-screenlist/pkg/video"
 	"os"
 	"sync"
 
+	"github.com/ReanSn0w/go-screenlist/pkg/list"
+	"github.com/ReanSn0w/go-screenlist/pkg/params"
+	"github.com/ReanSn0w/go-screenlist/pkg/utils"
+	"github.com/ReanSn0w/go-screenlist/pkg/video"
 	"github.com/go-pkgz/lgr"
 )
 

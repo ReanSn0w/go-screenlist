@@ -3,12 +3,12 @@ package list
 import (
 	"bytes"
 	"errors"
-	"go-screenlist/pkg/video"
 	"image"
 	"image/jpeg"
 	"os"
 	"strconv"
 
+	"github.com/ReanSn0w/go-screenlist/pkg/video"
 	"github.com/adrg/sysfont"
 	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"

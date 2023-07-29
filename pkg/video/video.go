@@ -2,7 +2,6 @@ package video
 
 import (
 	"errors"
-	"go-screenlist/pkg/utils"
 	"image"
 	"image/jpeg"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ReanSn0w/go-screenlist/pkg/utils"
 	"github.com/mowshon/moviego"
 )
 

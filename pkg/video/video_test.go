@@ -1,8 +1,9 @@
 package video_test
 
 import (
-	"go-screenlist/pkg/video"
 	"testing"
+
+	"github.com/ReanSn0w/go-screenlist/pkg/video"
 )
 
 func Test_Seconds(t *testing.T) {

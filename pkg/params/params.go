@@ -1,9 +1,9 @@
 package params
 
 import (
-	"go-screenlist/pkg/utils"
 	"os"
 
+	"github.com/ReanSn0w/go-screenlist/pkg/utils"
 	"github.com/go-pkgz/lgr"
 	"github.com/umputun/go-flags"
 )

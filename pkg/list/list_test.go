@@ -1,8 +1,9 @@
 package list
 
 import (
-	"go-screenlist/pkg/video"
 	"testing"
+
+	"github.com/ReanSn0w/go-screenlist/pkg/video"
 )
 
 func Test_Make(t *testing.T) {
