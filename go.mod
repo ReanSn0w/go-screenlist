@@ -1,4 +1,4 @@
-module go-screenlist
+module github.com/ReanSn0w/go-screenlist
 
 go 1.20
 
