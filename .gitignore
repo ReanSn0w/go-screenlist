@@ -3,3 +3,4 @@ cmd/screenlist/main
 .gitignore
 cmd/screenlist/test.mp4_screenlist.jpg
 cmd/screenlist/test.mp4
+cmd/screenlist/bin/
