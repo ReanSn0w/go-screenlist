@@ -34,7 +34,8 @@ func main() {
 			from := i * params.Treads
 			to := from + params.Treads
 			if to > files {
-				to = files
+				query <- params.Files[from:]
+				continue
 			}
 
 			query <- params.Files[from:to]
