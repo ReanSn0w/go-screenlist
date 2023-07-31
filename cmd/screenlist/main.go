@@ -66,7 +66,7 @@ func main() {
 					}
 
 					log.Logf("[INFO] Processing file screenshots for: %s", file)
-					images, err := video.Load(file, params.Screenshots, !params.Delta || params.ScreenshotMode)
+					images, err := video.Load(file, params.Screenshots, !params.Delta && !params.ScreenshotMode)
 					if err != nil {
 						log.Logf("[ERROR] file: %s err: %v", file, err)
 						if !params.Force {
