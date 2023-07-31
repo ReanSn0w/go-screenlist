@@ -66,12 +66,16 @@ func main() {
 					}
 
 					log.Logf("[INFO] Processing file screenshots for: %s", file)
-					images, err := video.Load(file, params.Screenshots, !params.Delta)
+					images, err := video.Load(file, params.Screenshots, !params.Delta || params.ScreenshotMode)
 					if err != nil {
 						log.Logf("[ERROR] file: %s err: %v", file, err)
 						if !params.Force {
 							return
 						}
+					}
+
+					if params.ScreenshotMode {
+						return
 					}
 
 					log.Logf("[INFO] Saving screenlist for: %s", file)

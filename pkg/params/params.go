@@ -28,14 +28,15 @@ func Load(log utils.Logger) *Parameters {
 }
 
 type Parameters struct {
-	Verbose     bool     `short:"v" long:"verbose" description:"verbose mode"`
-	Screenshots int      `long:"count" default:"15" description:"number of screenshots"`
-	ResultWidth int      `long:"width" default:"1920" description:"resulting image width"`
-	Treads      int      `long:"treads" default:"4" description:"number of treads"`
-	Delta       bool     `long:"delta" description:"save delta images"`
-	Force       bool     `short:"f" long:"force" description:"force execution (ignore errors)"`
-	Grid        int      `long:"grid" default:"3" description:"grid size"`
-	Files       []string `short:"i" long:"input" description:"file destinations"`
+	Verbose        bool     `short:"v" long:"verbose" description:"verbose mode"`
+	Screenshots    int      `long:"count" default:"15" description:"number of screenshots"`
+	ResultWidth    int      `long:"width" default:"1920" description:"resulting image width"`
+	Treads         int      `long:"treads" default:"4" description:"number of treads"`
+	Delta          bool     `long:"delta" description:"save delta images"`
+	Force          bool     `short:"f" long:"force" description:"force execution (ignore errors)"`
+	Grid           int      `long:"grid" default:"3" description:"grid size"`
+	ScreenshotMode bool     `long:"screenshot" description:"save only screenshots"`
+	Files          []string `short:"i" long:"input" description:"file destinations"`
 }
 
 func (p *Parameters) Log() utils.Logger {
