@@ -30,7 +30,7 @@ func Load(log utils.Logger) *Parameters {
 type Parameters struct {
 	Verbose        bool     `short:"v" long:"verbose" description:"verbose mode"`
 	Screenshots    int      `long:"count" default:"15" description:"number of screenshots"`
-	ResultWidth    int      `long:"width" default:"1920" description:"resulting image width"`
+	ResultWidth    int      `long:"width" default:"1200" description:"resulting image width"`
 	Treads         int      `long:"treads" default:"4" description:"number of treads"`
 	Delta          bool     `long:"delta" description:"save delta images"`
 	Force          bool     `short:"f" long:"force" description:"force execution (ignore errors)"`
@@ -45,4 +45,8 @@ func (p *Parameters) Log() utils.Logger {
 	}
 
 	return lgr.Default()
+}
+
+func (p *Parameters) RemoveOriginals() bool {
+	return !p.Delta && !p.ScreenshotMode
 }
