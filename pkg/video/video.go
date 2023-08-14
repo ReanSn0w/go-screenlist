@@ -5,13 +5,50 @@ import (
 	"image"
 	"image/jpeg"
 	"os"
-	"os/exec"
 	"strconv"
-	"strings"
 
+	"github.com/ReanSn0w/go-screenlist/pkg/ffmpeg"
 	"github.com/ReanSn0w/go-screenlist/pkg/utils"
 	"github.com/mowshon/moviego"
 )
+
+type Spec struct {
+	Title      string
+	Resolution [2]int
+	Fps        int
+	Size       int
+	Duration   int
+}
+
+func Specs(file string) (*Spec, error) {
+	seconds, err := ffmpeg.Seconds(file)
+	if err != nil {
+		return nil, err
+	}
+
+	resolution, err := ffmpeg.Resolution(file)
+	if err != nil {
+		return nil, err
+	}
+
+	fps, err := ffmpeg.FPS(file)
+	if err != nil {
+		return nil, err
+	}
+
+	size, err := ffmpeg.Filesize(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Spec{
+		Title:      file,
+		Resolution: resolution,
+		Fps:        fps,
+		Size:       size,
+		Duration:   seconds,
+	}, nil
+}
 
 // Load return video screenshots
 func Load(file string, count int, removeOriginals bool) ([]image.Image, error) {
@@ -19,7 +56,7 @@ func Load(file string, count int, removeOriginals bool) ([]image.Image, error) {
 		return nil, errors.New("count must be greater than 0")
 	}
 
-	seconds, err := Seconds(file)
+	seconds, err := ffmpeg.Seconds(file)
 	if err != nil {
 		return nil, err
 	}
@@ -36,123 +73,6 @@ func Load(file string, count int, removeOriginals bool) ([]image.Image, error) {
 	stack.Add(err)
 
 	return images, stack.Get()
-}
-
-// Seconds returns the length of a video in seconds
-func Seconds(file string) (int, error) {
-	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", file)
-	output, err := cmd.Output()
-	if err != nil {
-		return 0, err
-	}
-
-	return strconv.Atoi(strings.Split(string(output), ".")[0])
-}
-
-// Resolution returns the resolution of a video
-func Resolution(file string) ([2]int, error) {
-	// ffprobe -v error -show_entries stream=width,height -of csv=p=0:s=x test.mp4
-	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", file)
-	output, err := cmd.Output()
-	if err != nil {
-		return [2]int{}, err
-	}
-
-	vals := strings.Split(string(output), "x")
-	if len(vals) != 2 {
-		return [2]int{}, errors.New("invalid resolution")
-	}
-
-	width, err := strconv.Atoi(vals[0])
-	if err != nil {
-		return [2]int{}, err
-	}
-
-	height, err := strconv.Atoi(strings.Split(vals[1], "\n")[0])
-	if err != nil {
-		return [2]int{}, err
-	}
-
-	return [2]int{width, height}, nil
-}
-
-// Fps returns the fps of a video
-func Fps(file string) (int, error) {
-	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "-of", "default=noprint_wrappers=1:nokey=1", file)
-	output, err := cmd.Output()
-	if err != nil {
-		return 0, err
-	}
-
-	fps, err := strconv.Atoi(strings.Split(strings.Split(string(output), "/")[0], "\n")[0])
-	if err != nil {
-		return 0, err
-	}
-
-	return fps, nil
-}
-
-// Bitrate returns the bitrate of a video
-func Bitrate(file string) (int, error) {
-	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=bit_rate", "-of", "default=noprint_wrappers=1:nokey=1", file)
-	output, err := cmd.Output()
-	if err != nil {
-		return 0, err
-	}
-
-	bitrate, err := strconv.Atoi(strings.Split(string(output), "\n")[0])
-	if err != nil {
-		return 0, err
-	}
-
-	return bitrate, nil
-}
-
-func Filesize(file string) (int, error) {
-	info, err := os.Stat(file)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(info.Size()), nil
-}
-
-type Spec struct {
-	Title      string
-	Resolution [2]int
-	Fps        int
-	Size       int
-	Duration   int
-}
-
-func Specs(file string) (*Spec, error) {
-	seconds, err := Seconds(file)
-	if err != nil {
-		return nil, err
-	}
-
-	resolution, err := Resolution(file)
-	if err != nil {
-		return nil, err
-	}
-
-	fps, err := Fps(file)
-	if err != nil {
-		return nil, err
-	}
-
-	size, err := Filesize(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Spec{
-		Title:      file,
-		Resolution: resolution,
-		Fps:        fps,
-		Size:       size,
-		Duration:   seconds,
-	}, nil
 }
 
 func frames(seconds int, count int) []int {

@@ -20,7 +20,7 @@ func Make(spec *video.Spec, grid, width int, images []image.Image) (image.Image,
 		return nil, err
 	}
 
-	list, err := makeImagesGrid(spec.Resolution, grid, width, images)
+	list, err := Grid(spec.Resolution, grid, width, images)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func Save(name string, spes *video.Spec, grid, width int, images []image.Image) 
 	return err
 }
 
-func makeImagesGrid(resolution [2]int, grid, width int, images []image.Image) (image.Image, error) {
+func Grid(resolution [2]int, grid, width int, images []image.Image) (image.Image, error) {
 	if len(images) == 0 {
 		return nil, errors.New("no images to make list from")
 	}

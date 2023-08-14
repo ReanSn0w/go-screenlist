@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/adrg/sysfont v0.1.2
+	github.com/chai2010/webp v1.1.1
 	github.com/fogleman/gg v1.3.0
 	github.com/go-pkgz/lgr v0.11.0
 	github.com/mowshon/moviego v1.0.0
@@ -22,5 +23,5 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/u2takey/ffmpeg-go v0.4.1 // indirect
 	github.com/u2takey/go-utils v0.3.1 // indirect
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 )

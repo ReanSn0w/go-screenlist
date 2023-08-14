@@ -6,17 +6,6 @@ import (
 	"github.com/ReanSn0w/go-screenlist/pkg/video"
 )
 
-func Test_Seconds(t *testing.T) {
-	seconds, err := video.Seconds("test.mp4")
-	if err != nil {
-		t.Errorf("Expected nil, got %v", err)
-	}
-
-	if seconds != 1420 {
-		t.Errorf("Expected 1420, got %v", seconds)
-	}
-}
-
 func Test_Load(t *testing.T) {
 	count := 3
 

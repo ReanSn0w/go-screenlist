@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	"github.com/ReanSn0w/go-screenlist/pkg/list"
 	"github.com/ReanSn0w/go-screenlist/pkg/params"
 	"github.com/ReanSn0w/go-screenlist/pkg/utils"
@@ -23,6 +25,8 @@ func (a *Application) Run() error {
 	ch := make(chan *task, a.pref.Treads)
 
 	go a.createTasks(ch)
+
+	time.Sleep(time.Second * 3)
 	a.createWorkers(ch)
 
 	return nil
