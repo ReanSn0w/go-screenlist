@@ -2,14 +2,13 @@ package video
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"os"
-	"strconv"
 
 	"github.com/ReanSn0w/go-screenlist/pkg/ffmpeg"
 	"github.com/ReanSn0w/go-screenlist/pkg/utils"
-	"github.com/mowshon/moviego"
 )
 
 type Spec struct {
@@ -63,14 +62,15 @@ func Load(file string, count int, removeOriginals bool) ([]image.Image, error) {
 
 	stack := utils.NewErrorStack()
 
-	framePaths, err := makeframes(file, seconds, count)
-	if len(framePaths) == 0 {
+	images, err := makeframes(file, seconds, count)
+	if len(images) == 0 {
 		return nil, errors.New("no frames captured")
 	}
 	stack.Add(err)
 
-	images, err := loadImages(framePaths, removeOriginals)
-	stack.Add(err)
+	if !removeOriginals {
+		stack.Add(saveImages(file, images))
+	}
 
 	return images, stack.Get()
 }
@@ -87,54 +87,38 @@ func frames(seconds int, count int) []int {
 	return frames
 }
 
-func makeframes(file string, seconds int, count int) ([]string, error) {
-	video, err := moviego.Load(file)
-	if err != nil {
-		return nil, err
-	}
-
+func makeframes(file string, seconds int, count int) ([]image.Image, error) {
 	es := utils.NewErrorStack()
 
-	paths := make([]string, count) // generate frames
+	images := make([]image.Image, 0)
 	frames := frames(seconds, count)
 
-	for i, frame := range frames {
-		abs, err := video.Screenshot(float64(frame), file+"-screenshot-"+strconv.Itoa(i)+".jpg")
+	for _, frame := range frames {
+		img, err := ffmpeg.Shot(file, frame)
 		if err != nil {
 			es.Add(err)
-			continue
 		}
 
-		paths[i] = abs
+		images = append(images, img)
 	}
 
-	return paths, es.Get()
+	return images, es.Get()
 }
 
-func loadImages(paths []string, deleteOriginals bool) ([]image.Image, error) {
-	result := []image.Image{}
-	es := utils.NewErrorStack()
+func saveImages(filename string, images []image.Image) error {
+	es := utils.ErrorStack{}
 
-	for _, path := range paths {
-		file, err := os.Open(path)
+	for i, img := range images {
+		f, err := os.Create(fmt.Sprintf("%v_%v.jpg", filename, i))
 		if err != nil {
 			es.Add(err)
 			continue
 		}
+		defer f.Close()
 
-		image, err := jpeg.Decode(file)
-		if err != nil {
-			es.Add(err)
-			continue
-		}
-
-		result = append(result, image)
-
-		if deleteOriginals {
-			err = os.Remove(path)
-			es.Add(err)
-		}
+		err = jpeg.Encode(f, img, &jpeg.Options{Quality: 75})
+		es.Add(err)
 	}
 
-	return result, es.Get()
+	return es.Get()
 }
