@@ -9,10 +9,10 @@ import (
 	"github.com/ReanSn0w/go-screenlist/pkg/video"
 )
 
-func newTask(file string) *task {
+func newTask(file string) task {
 	fileparts := strings.Split(file, "/")
 
-	return &task{
+	return task{
 		filename: fileparts[len(fileparts)-1],
 		path:     file,
 	}
@@ -23,7 +23,7 @@ type task struct {
 	path     string
 }
 
-func (t *task) process(log utils.Logger, pref *params.Parameters) {
+func (t task) process(log utils.Logger, pref *params.Parameters) {
 	log.Logf("[INFO] Processing file specs for: %s", t.path)
 	specs, err := video.Specs(t.path)
 	if err != nil {

@@ -13,7 +13,7 @@ var (
 		Screenshots: 16,
 		ResultWidth: 1080,
 		Treads:      4,
-		Delta:       false,
+		Delta:       true,
 		Force:       false,
 		Grid:        4,
 		Files:       []string{"test.mp4"},
@@ -22,10 +22,5 @@ var (
 
 func TestApp_Run(t *testing.T) {
 	log := p.Log()
-
-	err := app.New(log, p).Run()
-	if err != nil {
-		t.Error(err)
-		t.Fail()
-	}
+	app.New(log, p).Run()
 }

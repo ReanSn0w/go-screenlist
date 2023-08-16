@@ -1,8 +1,6 @@
 package app
 
 import (
-	"sync"
-
 	"github.com/ReanSn0w/go-screenlist/pkg/params"
 	"github.com/ReanSn0w/go-screenlist/pkg/utils"
 )
@@ -11,55 +9,39 @@ func New(log utils.Logger, pref *params.Parameters) *Application {
 	return &Application{
 		log:  log,
 		pref: pref,
-		wg:   &sync.WaitGroup{},
-		rl:   utils.NewRoutineLimiter(pref.Treads),
 	}
 }
 
 type Application struct {
 	log  utils.Logger
 	pref *params.Parameters
-	wg   *sync.WaitGroup
-	rl   *utils.RoutineLimiter
 }
 
-func (a *Application) Run() error {
-	es := utils.ErrorStack{}
-	a.wg.Add(1)
+func (a *Application) Run() {
+	s := utils.NewScheduler[task, task](a.pref.Treads, a.processTasks)
+	s.Push(a.createTasks()...)
 
-	ch := make(chan *task, a.pref.Treads)
+	go func() {
+		for task := range s.Out() {
+			a.log.Logf("[INFO] Processed file: %s", task.filename)
+		}
+	}()
 
-	go a.createTasks(ch)
-	go a.createWorkers(ch)
-
-	a.wg.Wait()
-	return es.Get()
+	s.Wait()
 }
 
-func (a *Application) createTasks(ch chan<- *task) {
+func (a *Application) createTasks() []task {
+	res := []task{}
+
 	for _, file := range a.pref.Files {
 		task := newTask(file)
-		ch <- task
+		res = append(res, task)
 	}
 
-	// Последний элемент канала
-	// задача которого завершить выполнение программы
-	ch <- nil
+	return res
 }
 
-func (a *Application) createWorkers(in <-chan *task) {
-	for task := range in {
-		a.wg.Add(1)
-
-		if task == nil {
-			a.wg.Done()
-			a.wg.Done()
-			break
-		}
-
-		a.rl.Run(func() {
-			task.process(a.pref.Log(), a.pref)
-			a.wg.Done()
-		})
-	}
+func (a *Application) processTasks(t task) task {
+	t.process(a.log, a.pref)
+	return t
 }
