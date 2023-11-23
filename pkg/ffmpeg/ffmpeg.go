@@ -2,6 +2,7 @@ package ffmpeg
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -10,11 +11,18 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/go-pkgz/lgr"
 )
 
 // Shot takes a screenshot of a video at a given second
-func Shot(input string, s int) (image.Image, error) {
-	output, err := command("ffmpeg", "-ss", seconds(s), "-i", input, "-vframes", "1", "-q:v", "2", "-f", "image2pipe", "-vcodec", "png", "-")
+func Shot(input string, s time.Duration) (image.Image, error) {
+	time := prepareTime(s)
+
+	lgr.Default().Logf("[DEBUG] ffmpeg.Shot(%v) %v", input, time)
+
+	output, err := command("ffmpeg", "-ss", time, "-i", input, "-vframes", "1", "-q:v", "2", "-f", "image2pipe", "-vcodec", "png", "-")
 	if err != nil {
 		return nil, err
 	}
@@ -27,14 +35,14 @@ func Shot(input string, s int) (image.Image, error) {
 	return img, nil
 }
 
-// ShotJpeg takes a screenshot of a video at a given second and saves it as a jpeg
-func ShotJPEG(input string, output string, s int, quality int) error {
+// ShotJpeg takes a screenshot of a video at a given nanosecond and saves it as a jpeg
+func ShotJPEG(input string, output string, s time.Duration, quality int) error {
 	return shotImage(input, output, s, func(w io.Writer, img image.Image) error {
 		return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
 	})
 }
 
-func ShotPNG(input string, output string, s int) error {
+func ShotPNG(input string, output string, s time.Duration) error {
 	return shotImage(input, output, s, func(w io.Writer, img image.Image) error {
 		return png.Encode(w, img)
 	})
@@ -46,7 +54,7 @@ func ShotPNG(input string, output string, s int) error {
 // 	})
 // }
 
-func shotImage(input string, output string, s int, prepare func(io.Writer, image.Image) error) error {
+func shotImage(input string, output string, s time.Duration, prepare func(io.Writer, image.Image) error) error {
 	img, err := Shot(input, s)
 	if err != nil {
 		return err
@@ -156,11 +164,13 @@ func command(name string, arg ...string) (string, error) {
 	return string(out), err
 }
 
-// int to format 00:00:00
-func seconds(s int) string {
-	h := s / 3600
-	s -= h * 3600
-	m := s / 60
-	s -= m * 60
-	return strconv.Itoa(h) + ":" + strconv.Itoa(m) + ":" + strconv.Itoa(s)
+// time.Duration to format 00:00:00.000
+func prepareTime(s time.Duration) string {
+	t := time.Duration(s)
+	hours := int64(t.Hours())
+	minutes := int64(t.Minutes())
+	seconds := int64(t.Seconds())
+	milliseconds := t.Milliseconds()
+
+	return fmt.Sprintf("%v:%v:%v.%v", hours, minutes, seconds, milliseconds)
 }
