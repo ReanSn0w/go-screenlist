@@ -1,51 +1,53 @@
-package list
+package utils
 
 import (
-	"bytes"
 	"errors"
 	"image"
-	"image/jpeg"
-	"os"
 	"strconv"
 
-	"github.com/ReanSn0w/go-screenlist/pkg/video"
+	"github.com/ReanSn0w/tk4go/pkg/tools"
 	"github.com/adrg/sysfont"
 	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"
 )
 
-func Make(spec *video.Spec, grid, width int, images []image.Image) (image.Image, error) {
-	specImage, err := specImage(spec)
+func NewList(log tools.Logger, ffmpeg *FFMPEG) *List {
+	return &List{
+		log:    log,
+		ffmpeg: ffmpeg,
+	}
+}
+
+type List struct {
+	log    tools.Logger
+	ffmpeg *FFMPEG
+}
+
+func (l *List) Make(spec *Spec, grid, width int, images []image.Image) (image.Image, error) {
+	specImage, err := l.specImage(spec)
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := Grid(spec.Resolution, grid, width, images)
+	resolution := [2]int{}
+	if len(images) > 0 {
+		resolution[0], resolution[1] = images[0].Bounds().Dx(), images[0].Bounds().Dy()
+	}
+
+	if len(images) == 0 {
+		return nil, errors.New("no images to make list from")
+	}
+
+	list, err := l.grid(resolution, grid, width, images)
 	if err != nil {
 		return nil, err
 	}
 
-	clipped := clipImages(specImage, list)
+	clipped := l.clipImages(specImage, list)
 	return clipped, nil
 }
 
-func Save(name string, spes *video.Spec, grid, width int, images []image.Image) error {
-	image, err := Make(spes, grid, width, images)
-	if err != nil {
-		return err
-	}
-
-	buffer := new(bytes.Buffer)
-	err = jpeg.Encode(buffer, image, nil)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(name, buffer.Bytes(), 0644)
-	return err
-}
-
-func Grid(resolution [2]int, grid, width int, images []image.Image) (image.Image, error) {
+func (l *List) grid(resolution [2]int, grid, width int, images []image.Image) (image.Image, error) {
 	if len(images) == 0 {
 		return nil, errors.New("no images to make list from")
 	}
@@ -91,7 +93,11 @@ func Grid(resolution [2]int, grid, width int, images []image.Image) (image.Image
 	return resized, nil
 }
 
-func clipImages(images ...image.Image) image.Image {
+func (l *List) clipImages(images ...image.Image) image.Image {
+	if images[0] == nil {
+		return images[1]
+	}
+
 	width, height := 0, (len(images)-1)*10
 	for _, image := range images {
 		if image == nil {
@@ -129,8 +135,12 @@ func clipImages(images ...image.Image) image.Image {
 	return image
 }
 
-func specImage(spec *video.Spec) (image.Image, error) {
-	font := loadFont()
+func (l *List) specImage(spec *Spec) (image.Image, error) {
+	if spec == nil {
+		return nil, nil
+	}
+
+	font := l.loadFont()
 	if font == "" {
 		return nil, errors.New("no font found")
 	}
@@ -158,7 +168,7 @@ func specImage(spec *video.Spec) (image.Image, error) {
 	return dc.Image(), nil
 }
 
-func loadFont() string {
+func (l *List) loadFont() string {
 	finder := sysfont.NewFinder(nil)
 	// if font := finder.Match("Helvetica"); font != nil {
 	// 	return font.Filename

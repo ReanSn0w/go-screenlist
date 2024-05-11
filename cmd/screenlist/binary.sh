@@ -1,4 +1,7 @@
-GOOS=windows GOARCH=amd64 go build -o bin/screenlist.exe main.go
+#! /bin/bash
+
+GOOS=windows GOARCH=amd64 go build -o bin/screenlist_amd64.exe main.go
+GOOS=windows GOARCH=arm64 go build -o bin/screenlist_arm64.exe main.go
 GOOS=darwin GOARCH=arm64 go build -o bin/darwin_arm64 main.go
 GOOS=darwin GOARCH=amd64 go build -o bin/darwin_amd64 main.go
 GOOS=linux GOARCH=arm64 go build -o bin/linux_arm64 main.go
