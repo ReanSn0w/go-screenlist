@@ -110,7 +110,7 @@ func (e *Engine) process(file utils.File) error {
 	}
 
 	if e.preferences.delta.Enabled {
-		images, err := spec.Load(e.ffmpeg, string(file), e.preferences.screenlist.Images)
+		images, err := spec.Load(e.ffmpeg, string(file), e.preferences.delta.Images)
 		if err != nil {
 			e.log.Logf("[ERROR] get images for %s: %v", file, err)
 			return err
